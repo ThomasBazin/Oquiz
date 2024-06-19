@@ -1,0 +1,26 @@
+<%- include('./partials/header.ejs') %>
+
+<main class="container py-4">
+
+    <h1>Thèmes</h1>
+  
+    <div>
+
+      <% tags.forEach(tag => { %>
+        <span class="badge bg-primary p-2 mb-1"><%= tag.name %></span>
+        <ul>
+         <% tag.quizzes.forEach(quiz => { %>
+          <li><a href="/quiz/<%= quiz.id %>"><%= quiz.title %></a></li>
+          
+         <% }) %>
+        </ul>
+      <% }) %>
+  
+    
+    </div>
+  
+  </main>
+ 
+  
+  <%- include('./partials/footer.ejs') %>
+  
