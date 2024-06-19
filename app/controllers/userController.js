@@ -8,38 +8,51 @@ const userController = {
   },
 
   async addUser(req, res) {
-    const { firstname, lastname, email, password, confirmation} = req.body;
+    try {
 
-    if (!firstname || !lastname || !email || !password || !confirmation) {
-      res.status(400).render("signup", {errorMsg: "Tous les champs sont obligatoires !"})
-    }
+      const { firstname, lastname, email, password, confirmation} = req.body;
+  
+      if (!firstname || !lastname || !email || !password || !confirmation) {
+        res.status(400).render("signup", {errorMsg: "Tous les champs sont obligatoires !"})
+      }
+  
+      if (!emailValidator.validate(email)) {
+        res.status(400).render("signup", {errorMsg: "L'email n'est pas valide !"})
+      }
+  
+      const passwordPattern = new passwordValidator().is().min(12).has().digits(1);
+  
+      if (!passwordPattern.validate(password)) {
+        res.status(400).render("signup", {errorMsg: "Le mot de passe doit faire au minimum 12 caractères et contenir au moins 1 chiffre !"})
+      }
 
-    if (!emailValidator.validate(email)) {
-      res.status(400).render("signup", {errorMsg: "L'email n'est pas valide !"})
-    }
+      if (password !== confirmation) {
+        res.status(400).render("signup", {errorMsg: "Erreur dans la confirmation du mot de passe  !"})
 
-    if (await User.findOne({where: {email: email}})) {
-      res.status(409).render("signup", {errorMsg: "Desole, l'utilisateur existe deja !"})
+      }
+  
+      if (await User.findOne({where: {email: email}})) {
+        res.status(409).render("signup", {errorMsg: "Désolé, cet e-mail est déjà utilisé"})
+      }
 
-    }
+      const bcrypt = require('bcrypt');
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      
+      await User.create({
+        firstname: firstname,
+        lastname: lastname,
+        email: email,
+        password: hashedPassword
+      })
 
-    const passwordPattern = new passwordValidator().is().min(12).has().digits(1);
-
-    if (!passwordPattern.validate(password)) {
-      res.status(400).render("signup", {errorMsg: "Le mot de passe doit faire au minimum 12 caracteres et contenir au moins 1 chiffre !"})
+      res.render("login", {successMsg: "Vous êtes bien inscrit, merci de vous authentifier."})
+    } catch (error) {
+      console.error(error);
+      res.status(500).render("500");
     }
 
  
-
-
-    // try {
-    //   const newUser = await User.create(userInfo);
-    //   console.log(userInfo);
-
-    // } catch(error) {
-    //   console.error(error);
-    //   res.status(500).render("500");
-    // }
   },
 
   loginPage(req, res) {
