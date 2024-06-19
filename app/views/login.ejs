@@ -6,11 +6,18 @@
 
   <% if (locals.successMsg) { %>
     <div class="alert alert-success" role="alert">
-      <%= successMsg %>
+      <p><%= successMsg %></p>
     </div>
   <% } %>
 
-  <form action="#" method="POST">
+  <% if (locals.errorMsg) { %>
+    <div class="alert alert-danger" role="alert">
+      <p><%= errorMsg %></p>
+      <a href="/signup">Inscription</a>
+    </div>
+  <% } %>
+
+  <form action="/login" method="POST">
     <label class="form-label h4" for="email">Email</label>
     <input class="form-control mb-4" type="email" id="email" name="email" placeholder="email@domain.com">
 

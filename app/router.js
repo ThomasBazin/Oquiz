@@ -21,6 +21,7 @@ router.get("/signup", userController.signupPage);
 router.post("/signup", userController.addUser);
 
 router.get("/login", userController.loginPage)
+router.post("/login", userController.userLogin);
 
 // Export router
 module.exports = router;

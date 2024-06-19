@@ -1,6 +1,7 @@
 const { User } = require("../models");
 const emailValidator = require('email-validator');
-const passwordValidator = require('password-validator')
+const passwordValidator = require('password-validator');
+const bcrypt = require('bcrypt');
 
 const userController = {
   signupPage(req, res) {
@@ -28,17 +29,16 @@ const userController = {
 
       if (password !== confirmation) {
         res.status(400).render("signup", {errorMsg: "Erreur dans la confirmation du mot de passe  !"})
-
       }
   
       if (await User.findOne({where: {email: email}})) {
         res.status(409).render("signup", {errorMsg: "Désolé, cet e-mail est déjà utilisé"})
       }
 
-      const bcrypt = require('bcrypt');
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
       
+      const saltRounds = parseInt(process.env.SALT_ROUNDS || 10);
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
       await User.create({
         firstname: firstname,
         lastname: lastname,
@@ -51,12 +51,31 @@ const userController = {
       console.error(error);
       res.status(500).render("500");
     }
-
- 
   },
 
   loginPage(req, res) {
     res.render("login")
+  },
+
+  async userLogin(req, res) {
+    try {
+      const userEmail = req.body.email;
+
+      const storedUser = await User.findOne({where : {email: userEmail}})
+      if (!storedUser || ! await bcrypt.compare(req.body.password, storedUser.password)) {
+        res.status(409).render("login", {errorMsg: "Erreur sur l'e-mail ou le mot de passe"})
+      }
+
+      res.send("BON !")
+
+    
+
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).render("500");
+    }
+    
   }
 }
 
