@@ -66,7 +66,8 @@ const userController = {
         res.status(409).render("login", {errorMsg: "Erreur sur l'e-mail ou le mot de passe"})
       }
 
-      res.send("BON !")
+      req.session.userId = storedUser.id;
+      console.log(req.session.userId)
 
     
 

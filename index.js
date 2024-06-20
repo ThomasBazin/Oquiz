@@ -5,7 +5,7 @@ require("dotenv/config");
 const express = require("express");
 const router = require("./app/router");
 const middleware404 = require("./app/middlewares/middleware404");
-
+const sessionMiddleware = require('./app/middlewares/sessionMiddleware')
 // Create Express app
 const app = express();
 
@@ -18,6 +18,8 @@ app.set("views", "./app/views");
 
 // Configure body parsers
 app.use(express.urlencoded({ extended: true }));
+
+app.use(sessionMiddleware);
 
 // Configure routes
 app.use(router);
